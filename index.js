@@ -24,7 +24,7 @@ express()
       const passwd = req.body.passwd
     
       const client = await pool.connect()
-      const queryStr = `INSERT INTO users values (${id}, ${name}, ${passwd})`
+      const queryStr = `INSERT INTO users values (${id}, '${name}', '${passwd}')`
       //res.send(queryStr)
       await client.query(queryStr)
       const result = await client.query('SELECt * FROM users')
