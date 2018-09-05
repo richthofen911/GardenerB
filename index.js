@@ -22,18 +22,16 @@ express()
       //res.json({requestBody: req.body, requestHeader: req.headers})
       const client = await pool.connect()
       const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-      const addUserQuery = `INSERT INTO users values (
+      const QUERY_ADD_USER = `INSERT INTO users values (
         ${Date.now()}, '${req.body.username}', '${req.body.password}', '${req.body.email}',
         TIMESTAMP '${currentTimeStamp}', TIMESTAMP '${currentTimeStamp}'
       );`
-      
-      await client.query(addUserQuery)
+      await client.query(QUERY_ADD_USER)
       client.release();
       res.json({
         status_code:200,
         status_msg: 'success'
       })
-     res.send(addUserQuery)
     } catch(err) {
       client.release()
       res.json({
@@ -45,9 +43,21 @@ express()
   .post('/login', async(req, res) => {
     try {
       const client = await pool.connect()
-      const userQuery = `SELECT * FROM users WHERE username='${req.body.username}' AND password='${req.body.password}'`
-      const result = await client.query(userQuery)
-      res.send(result)
+      const QUERY_CHECK_USER = `SELECT * FROM users WHERE username='${req.body.username}' AND password='${req.body.password}'`
+      const result = await client.query(QUERY_CHECK_USER)
+      if (result.rowCount == 1) {
+        const user_id = result.rows[0].user_id
+        const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+
+        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = ${currentTimeStamp} WHERE user_id = ${user_id};`
+        await client.query(QUERY_UPDATE_LAST_LOGIN)
+
+        res.json({
+          user_id: result.rows[0].user_id,
+          token: crypto.createHash('md5').update(currentTimeStamp + user_id).digest("hex")
+        })
+      }
+      
       client.release();
     } catch(err) {
       client.release()
