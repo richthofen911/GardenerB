@@ -60,6 +60,9 @@ express()
           `INSERT INTO session values (
             '${newToken}'， '${userId}', TIMESTAMP '${currentTimeStamp}'
           );`
+        
+        res.send(QUERY_CREATE_TOKEN)
+        /*
         await client.query(QUERY_CREATE_TOKEN)  
 
         client.release();
@@ -70,6 +73,7 @@ express()
           user_id: userId,
           token: newToken
         })
+        */
       } else {
         client.release()
         res.json({
