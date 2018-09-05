@@ -35,6 +35,7 @@ express()
       })
      res.send(addUserQuery)
     } catch(err) {
+      client.release()
       res.json({
         status_code:501,
         status_msg: err
@@ -43,10 +44,13 @@ express()
   })
   .post('/login', async(req, res) => {
     try {
-      const name = req.body.name
-      const passwd = req.body.passwd
-      const queryStr = `SELECT * FROM users WHERE id='${req.body.id}' AND passwd='${req.body.passwd}'`
+      const client = await pool.connect()
+      const userQuery = `SELECT * FROM users WHERE username='${req.body.username}' AND password='${req.body.password}'`
+      const result = await client.query(userQuery)
+      res.send(result)
+      client.release();
     } catch(err) {
+      client.release()
       res.json({
         status_code:501,
         status_msg:'error'
