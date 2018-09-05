@@ -43,7 +43,7 @@ express()
   .post('/login', async(req, res) => {
     try {
       const client = await pool.connect()
-      const QUERY_CHECK_USER = `SELECT * FROM users WHERE username='${req.body.username}' AND password='${req.body.password}'`
+      const QUERY_CHECK_USER = `SELECT * FROM users WHERE username='${req.body.email}' AND password='${req.body.password}'`
       const result = await client.query(QUERY_CHECK_USER)
       if (result.rowCount == 1) {
         const user_id = result.rows[0].user_id
@@ -52,13 +52,18 @@ express()
         const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = ${currentTimeStamp} WHERE user_id = ${user_id};`
         await client.query(QUERY_UPDATE_LAST_LOGIN)
 
+        client.release();
+
         res.json({
+          status_code:200,
+          status_msg: 'success',
           user_id: result.rows[0].user_id,
           token: crypto.createHash('md5').update(currentTimeStamp + user_id).digest("hex")
         })
+      } else {
+        client.release()
+        res.send("user not found")
       }
-      
-      client.release();
     } catch(err) {
       client.release()
       res.json({
