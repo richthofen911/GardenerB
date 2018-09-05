@@ -16,7 +16,7 @@ express()
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
-  .post('/login', async(req, res) => {
+  .post('/signup', async(req, res) => {
     try {
       //res.json({requestBody: req.body, requestHeader: req.headers})
       const id = req.body.id
@@ -24,16 +24,19 @@ express()
       const passwd = req.body.passwd
     
       const client = await pool.connect()
-      const queryStr = `INSERT INTO users values (${id}, '${name}', '${passwd}')`
-      //res.send(queryStr)
+      const queryStr = `INSERT INTO users values ('${id}', '${name}', '${passwd}')`
       await client.query(queryStr)
-      const result = await client.query('SELECt * FROM users')
-      res.json({record: result});
       client.release();
-      
+      res.json({
+        status_code:200,
+        status_msg: 'success'
+      })
     } catch(err) {
       console.error(err)
-      res.send("Error " + err)
+      res.json({
+        status_code:501,
+        status_msg: 'error'
+      })
     }
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
