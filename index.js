@@ -28,6 +28,7 @@ express()
       );`
       await client.query(QUERY_ADD_USER)
       client.release();
+
       res.json({
         status_code:200,
         status_msg: 'success'
@@ -46,23 +47,35 @@ express()
       const QUERY_CHECK_USER = `SELECT * FROM users WHERE email='${req.body.email}' AND password='${req.body.password}'`
       const result = await client.query(QUERY_CHECK_USER)
       if (result.rowCount == 1) {
-        const user_id = result.rows[0].user_id
+        const userId = result.rows[0].user_id
         const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         
-        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = TIMESTAMP '${currentTimeStamp}' WHERE user_id = '${user_id}';`
+        const QUERY_UPDATE_LAST_LOGIN = 
+          `UPDATE users SET last_login = TIMESTAMP '${currentTimeStamp}' WHERE user_id = '${userId}';`
         await client.query(QUERY_UPDATE_LAST_LOGIN)
+
+        const newToken = crypto.createHash('md5').update(currentTimeStamp + userId).digest("hex")
+
+        const QUERY_CREATE_TOKEN = 
+          `INSERT INTO session values (
+            '${newToken}'， '${userId}', TIMESTAMP '${currentTimeStamp}'
+          )`
+        await client.query(QUERY_CREATE_TOKEN)  
 
         client.release();
 
         res.json({
           status_code:200,
           status_msg: 'success',
-          user_id: result.rows[0].user_id,
-          token: crypto.createHash('md5').update(currentTimeStamp + user_id).digest("hex")
+          user_id: userId,
+          token: newToken
         })
       } else {
         client.release()
-        res.send("user not found")
+        res.json({
+          status_code:201,
+          status_msg:'user not found'
+        })
       }
     } catch(err) {
       client.release()
