@@ -48,10 +48,8 @@ express()
       if (result.rowCount == 1) {
         const user_id = result.rows[0].user_id
         const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-        client.release()
-        res.send(user_id + ", " + currentTimeStamp)
-        /*
-        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = ${currentTimeStamp} WHERE user_id = ${user_id};`
+        
+        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = TIMESTAMP '${currentTimeStamp}' WHERE user_id = ${user_id};`
         await client.query(QUERY_UPDATE_LAST_LOGIN)
 
         client.release();
@@ -62,7 +60,6 @@ express()
           user_id: result.rows[0].user_id,
           token: crypto.createHash('md5').update(currentTimeStamp + user_id).digest("hex")
         })
-        */
       } else {
         client.release()
         res.send("user not found")
