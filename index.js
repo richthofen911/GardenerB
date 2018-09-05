@@ -59,7 +59,7 @@ express()
         const QUERY_CREATE_TOKEN = 
           `INSERT INTO session values (
             '${newToken}'， '${userId}', TIMESTAMP '${currentTimeStamp}'
-          )`
+          );`
         await client.query(QUERY_CREATE_TOKEN)  
 
         client.release();
