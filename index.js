@@ -43,7 +43,7 @@ express()
   .post('/login', async(req, res) => {
     try {
       const client = await pool.connect()
-      const QUERY_CHECK_USER = `SELECT * FROM users WHERE username='${req.body.email}' AND password='${req.body.password}'`
+      const QUERY_CHECK_USER = `SELECT * FROM users WHERE email='${req.body.email}' AND password='${req.body.password}'`
       const result = await client.query(QUERY_CHECK_USER)
       if (result.rowCount == 1) {
         const user_id = result.rows[0].user_id
