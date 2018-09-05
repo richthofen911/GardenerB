@@ -13,8 +13,6 @@ express()
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
   .get('/db', async(req, res) => {
-    res.json({a:1});
-    
     try {
       const client = await pool.connect()
       const result = await client.query('SELECt * FROM test_table')
