@@ -21,16 +21,19 @@ express()
     try {
       //res.json({requestBody: req.body, requestHeader: req.headers})
       const client = await pool.connect()
-      const currentTimeStamp = Date()
+      const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
       const addUserQuery = `INSERT INTO users values (
         ${Date.now()}, '${req.body.username}', '${req.body.password}', '${req.body.email}',
-        TIMESTAMP '${currentTimeStamp}', TIMESTAMP '${currentTimeStamp}');`
+        TIMESTAMP '${currentTimeStamp}', TIMESTAMP '${currentTimeStamp}'
+      );`
+      
       await client.query(addUserQuery)
       client.release();
       res.json({
         status_code:200,
         status_msg: 'success'
       })
+     res.send(addUserQuery)
     } catch(err) {
       res.json({
         status_code:501,
