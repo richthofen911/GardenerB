@@ -49,7 +49,7 @@ express()
         const user_id = result.rows[0].user_id
         const currentTimeStamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         
-        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = TIMESTAMP '${currentTimeStamp}' WHERE user_id = ${user_id};`
+        const QUERY_UPDATE_LAST_LOGIN = `UPDATE users SET last_login = TIMESTAMP '${currentTimeStamp}' WHERE user_id = '${user_id}';`
         await client.query(QUERY_UPDATE_LAST_LOGIN)
 
         client.release();
