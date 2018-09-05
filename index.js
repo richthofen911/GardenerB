@@ -34,7 +34,7 @@ express()
     } catch(err) {
       res.json({
         status_code:501,
-        status_msg: 'error'
+        status_msg: err
       })
     }
   })
